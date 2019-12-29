@@ -1,5 +1,6 @@
 ﻿using Grpc.Core;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace GrpcServer.Services
@@ -35,6 +36,45 @@ namespace GrpcServer.Services
                 output.Age = 30;
             }
             return Task.FromResult(output);
+        }
+
+        public override async Task GetNewCustomers(NewCustomerRequest request, IServerStreamWriter<CustomerModel> responseStream, ServerCallContext context)
+        {
+            List<CustomerModel> customers = new List<CustomerModel>
+            {
+                new CustomerModel
+                {
+                    FirstName = "Tim",
+                    LastName = "Corey",
+                    EmailAddress = "tc@gmail.com",
+                    Age = 21,
+                    IsAlive = true
+                },
+                new CustomerModel
+                {
+                    FirstName = "Jhon",
+                    LastName = "Doe",
+                    EmailAddress = "jd@gmail.com",
+                    Age = 22,
+                    IsAlive = true
+                },
+                new CustomerModel
+                {
+                    FirstName = "Sheikh",
+                    LastName = "Hasan",
+                    EmailAddress = "sh@gmail.com",
+                    Age = 63,
+                    IsAlive = false
+                }
+            };
+
+            foreach (var cust in customers)
+            {
+                await Task.WhenAll(
+                        Task.Delay(500),
+                        responseStream.WriteAsync(cust)
+                      );
+            }
         }
     }
 }
